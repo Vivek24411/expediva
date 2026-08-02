@@ -1,0 +1,149 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --ease-editorial: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: auto; /* Lenis owns scrolling */
+  }
+
+  body {
+    @apply bg-ivory font-sans text-ink antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  /* Fraunces reads better with a touch of optical sizing at display sizes. */
+  h1,
+  h2,
+  h3 {
+    font-optical-sizing: auto;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    @apply bg-ember text-paper;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ember ring-offset-2 ring-offset-ivory;
+  }
+
+  /* Lenis */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+}
+
+@layer components {
+  /* Section eyebrow — uppercase micro-label with wide tracking. */
+  .eyebrow {
+    @apply font-sans text-eyebrow font-medium uppercase text-ink-muted;
+  }
+
+  .hairline {
+    @apply border-0 border-t border-hairline;
+  }
+
+  /* Editorial link: underline grows from the left on hover. */
+  .link-underline {
+    @apply relative inline-block;
+  }
+  .link-underline::after {
+    content: '';
+    @apply absolute -bottom-0.5 left-0 h-px w-full origin-right scale-x-0 bg-current;
+    transition: transform 0.5s var(--ease-editorial);
+  }
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    @apply origin-left scale-x-100;
+  }
+
+  /* Fixed frame that clips the zooming image inside trip cards. */
+  .frame {
+    @apply relative overflow-hidden bg-sand;
+  }
+  .frame img {
+    transition:
+      transform 0.9s var(--ease-editorial),
+      filter 0.9s var(--ease-editorial);
+    will-change: transform;
+  }
+  .group:hover .frame img {
+    transform: scale(1.06);
+  }
+}
+
+@layer utilities {
+  /* Film grain for hero imagery — a data-URI SVG so there's no extra request. */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.22;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+
+  .edge {
+    @apply px-5 sm:px-8 lg:px-12;
+  }
+
+  .shell {
+    @apply mx-auto w-full max-w-editorial;
+  }
+
+  /* Hides the scrollbar on horizontal filter rails without losing scroll. */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pause-on-hover:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion: kill transforms and long transitions, keep everything legible.
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .group:hover .frame img {
+    transform: none;
+  }
+}

@@ -1,0 +1,21 @@
+node_modules/
+dist/
+build/
+
+# Environment — never commit real credentials
+.env
+.env.*
+!.env.example
+
+*.log
+npm-debug.log*
+
+.DS_Store
+Thumbs.db
+
+.vscode/
+.idea/
+
+coverage/
+*.tsbuildinfo
+.vercel
