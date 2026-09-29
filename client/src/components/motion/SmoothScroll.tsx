@@ -1,5 +1,12 @@
 import Lenis from 'lenis';
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import { useLocation } from 'react-router-dom';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
@@ -30,6 +37,8 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       smoothWheel: true,
       syncTouch: false,
       touchMultiplier: 1.6,
+      // Let nested scroll areas, such as the homepage snap slides, handle scrolling.
+      allowNestedScroll: true,
     });
 
     setLenis(instance);

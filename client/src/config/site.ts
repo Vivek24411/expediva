@@ -34,18 +34,45 @@ export const site = {
   defaultPickup: 'IIT Roorkee Main Gate',
 } as const;
 
+export const navLinks = [
+  { label: 'Home', to: '/' },
+  { label: 'About Us', to: '/#about' },
+  { label: 'Upcoming Trips', to: '/trips' },
+  { label: 'Customize', to: '/customize' },
+  { label: 'Contact Us', to: '/contact' },
+  {
+    label: 'More', 
+    to: '#',
+    children: [
+      { label: 'Merch', to: '/merch' },
+      { label: 'Gallery', to: '/gallery' },
+      {
+        label: 'Contact Us',
+        to: '#',
+        children: [
+          { label: 'Email', to: 'mailto:hello@expediva.in' },
+          {
+            label: 'Instagram',
+            to: 'https://www.instagram.com/expe_diva?igsi=dXI4bGV6YjE5Ymd2',
+          },
+          {
+            label: 'WhatsApp',
+            to: 'https://chat.whatsapp.com/Jrih2lDQSgbGxhNhcyKzRA?s=cl&p=i&mlu=0',
+          },
+        ],
+      },
+    ],
+  },
+] as const;
 export function whatsappLink(message: string = site.whatsappMessage): string {
   return `https://wa.me/${site.contact.whatsapp}?text=${encodeURIComponent(message)}`;
 }
-
 export function telLink(): string {
   return `tel:${site.contact.phone.replace(/\s/g, '')}`;
 }
-
 export function mailtoLink(subject = 'Question about an Expediva trip'): string {
   return `mailto:${site.contact.email}?subject=${encodeURIComponent(subject)}`;
 }
-
 /** The trust strip on the home page. Icon names map to lucide-react. */
 export const trustPoints = [
   {
@@ -54,6 +81,7 @@ export const trustPoints = [
     body: 'Built by students who got tired of paying tourist rates. Every trip is costed to what a hostel budget can actually take.',
   },
   {
+
     icon: 'MapPin',
     title: 'Departs from campus',
     body: 'Pickup at IIT Roorkee Main Gate. No pre-dawn scramble to Delhi or Haridwar to catch a bus you booked separately.',
@@ -88,7 +116,7 @@ export const generalFaqs = [
     q: 'What if I am going alone and do not know anyone?',
     a: 'That is how most people join. Groups are 15 to 25 people, the trip captain handles introductions on day one, and rooms are shared. Nobody stays a stranger past the first evening.',
   },
-  {
+  { 
     q: 'What is the cancellation policy?',
     a: 'More than 10 days before departure gets you a 75% refund, 10 to 5 days gets 50%. Under 5 days we cannot refund because stays and transport are already paid for.',
   },
@@ -96,10 +124,4 @@ export const generalFaqs = [
     q: 'What happens if the weather turns bad?',
     a: 'Safety decides the itinerary, not the brochure. If a pass is closed or a trail is unsafe, the captain swaps in an alternative at no extra cost. We do not push a group into bad conditions to keep a schedule.',
   },
-] as const;
-
-export const navLinks = [
-  { label: 'Trips', to: '/trips' },
-  { label: 'Gallery', to: '/gallery' },
-  { label: 'Contact', to: '/contact' },
 ] as const;
