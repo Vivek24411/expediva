@@ -36,6 +36,8 @@ export interface Trip {
   durationDays: number;
   price: number;
   originalPrice?: number;
+  seatsTotal: number;
+  seatsLeft: number;
   difficulty: TripDifficulty;
   highlights: string[];
   inclusions: string[];
