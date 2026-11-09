@@ -4,16 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Warm paper base — never pure white.
-        ivory: '#F6F2EA',
+        // Theme-aware tokens: light values on :root (admin), dark values under
+        // html.theme-dark (the public site). Defined in src/index.css.
+        ivory: 'rgb(var(--c-ivory) / <alpha-value>)',
         paper: '#FCFAF5',
-        sand: '#EDE6DA',
-        /** Deep forest ink — the text colour, not black. */
+        sand: 'rgb(var(--c-sand) / <alpha-value>)',
+        /** Main text colour — dark ink on the light admin, warm off-white on the dark site. */
         ink: {
-          DEFAULT: '#1B2A22',
-          soft: '#41544A',
-          // 4.67:1 on ivory, 5.00:1 on paper — clears WCAG AA for small text.
-          muted: '#627066',
+          DEFAULT: 'rgb(var(--c-ink) / <alpha-value>)',
+          soft: 'rgb(var(--c-ink-soft) / <alpha-value>)',
+          muted: 'rgb(var(--c-ink-muted) / <alpha-value>)',
         },
         /** Near-black with a warm undertone for dark sections. */
         pitch: {
@@ -27,7 +27,7 @@ export default {
           deep: '#8E3C15',
         },
         moss: '#5E7355',
-        hairline: 'rgba(27, 42, 34, 0.14)',
+        hairline: 'var(--c-hairline)',
         'hairline-invert': 'rgba(246, 242, 234, 0.18)',
       },
       fontFamily: {

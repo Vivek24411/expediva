@@ -1,18 +1,13 @@
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Footer } from '@/components/layout/Footer';
-import { Navbar } from '@/components/layout/Navbar';
 import { Seo } from '@/components/layout/Seo';
-import { WhatsAppFab } from '@/components/layout/WhatsAppFab';
 import { Eyebrow } from '@/components/ui/primitives';
 
 export default function NotFound() {
   return (
     <>
       <Seo title="Page not found" noIndex />
-      <Navbar />
-
-      <main className="flex min-h-[85svh] items-center bg-ivory pt-[68px]">
+      <div className="flex min-h-[85svh] items-center pt-[68px]">
         <div className="shell edge">
           <Eyebrow>Error 404</Eyebrow>
 
@@ -46,10 +41,7 @@ export default function NotFound() {
             </Link>
           </div>
         </div>
-      </main>
-
-      <Footer />
-      <WhatsAppFab />
+      </div>
     </>
   );
 }

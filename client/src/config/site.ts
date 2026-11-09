@@ -12,19 +12,19 @@ export const site = {
   /** Used for canonical URLs, OG tags and JSON-LD. Set VITE_SITE_URL in production. */
   url: import.meta.env.VITE_SITE_URL ?? 'https://expediva.in',
 
-  founded: 2024,
+  founded: 2026,
   basedAt: 'IIT Roorkee',
 
   contact: {
-    phone: '+91 98765 43210',
+    phone: '+91 8074137909',
     /** Digits only, country code included — used to build wa.me links. */
-    whatsapp: '919876543210',
-    email: 'hello@expediva.in',
+    whatsapp: '918074137909',
+    email: 'expediva.travel@gmail.com',
     address: 'IIT Roorkee, Roorkee, Uttarakhand 247667',
   },
 
   social: {
-    instagram: 'expediva.trips',
+    instagram: 'expe_diva',
     instagramUrl: 'https://instagram.com/expediva.trips',
   },
 
@@ -37,8 +37,10 @@ export const site = {
 export const navLinks = [
   { label: 'Home', to: '/' },
   { label: 'About Us', to: '/#about' },
-  { label: 'Upcoming Trips', to: '/trips' },
-  { label: 'Customize', to: '/customize' },
+  // Jumps to the Upcoming Trips carousel on the homepage (the full list stays at /trips).
+  { label: 'Upcoming Trips', to: '/#trips' },
+  // Customize is a section of the homepage, not its own page.
+  { label: 'Customize', to: '/#customize' },
   { label: 'Contact Us', to: '/contact' },
   {
     label: 'More', 

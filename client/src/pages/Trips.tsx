@@ -100,7 +100,7 @@ export default function Trips() {
         description="Every Expediva departure — treks, weekend getaways, adventure trips and long tours, with student pricing and pickup from IIT Roorkee."
       />
 
-      <div className="bg-ivory pb-24 pt-[112px] lg:pb-36 lg:pt-[150px]">
+      <div className="pb-24 pt-[112px] lg:pb-36 lg:pt-[150px]">
         <div className="shell edge">
           <Eyebrow>The calendar</Eyebrow>
           <h1 className="mt-4 max-w-2xl font-display text-display-md tracking-tight text-ink">

@@ -19,3 +19,7 @@ Thumbs.db
 coverage/
 *.tsbuildinfo
 .vercel
+
+# Local test mode (npm run demo)
+server/.demo-db/
+server/uploads/

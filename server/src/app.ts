@@ -9,7 +9,7 @@ import { HttpError } from './utils/http';
 import { authRouter } from './routes/auth.routes';
 import { seoRouter } from './routes/seo.routes';
 import { tripsRouter } from './routes/trips.routes';
-import { uploadRouter } from './routes/upload.routes';
+import { LOCAL_UPLOAD_DIR, uploadRouter } from './routes/upload.routes';
 
 export function createApp() {
   const app = express();
@@ -48,6 +48,8 @@ export function createApp() {
   app.use('/api/auth', authRouter);
   app.use('/api/trips', tripsRouter);
   app.use('/api/upload', uploadRouter);
+  // Images uploaded while testing locally without Cloudinary.
+  if (!isProd) app.use('/uploads', express.static(LOCAL_UPLOAD_DIR, { maxAge: '1d' }));
   app.use(seoRouter);
 
   app.use(notFoundHandler);

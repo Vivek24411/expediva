@@ -10,6 +10,7 @@ import Home from '@/pages/Home';
 const Trips = lazy(() => import('@/pages/Trips'));
 const TripDetail = lazy(() => import('@/pages/TripDetail'));
 const Gallery = lazy(() => import('@/pages/Gallery'));
+const TripAlbum = lazy(() => import('@/pages/TripAlbum'));
 const Merch = lazy(() => import('@/pages/merch'));
 const Contact = lazy(() => import('@/pages/Contact'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
@@ -28,8 +29,11 @@ export default function App() {
             <Route path="trips" element={<Trips />} />
             <Route path="trips/:slug" element={<TripDetail />} />
             <Route path="gallery" element={<Gallery />} />
+            <Route path="gallery/:slug" element={<TripAlbum />} />
             <Route path="merch" element={<Merch />} />
             <Route path="contact" element={<Contact />} />
+            {/* Inside the public layout so the 404 gets the same dark background. */}
+            <Route path="*" element={<NotFound />} />
           </Route>
 
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -39,7 +43,6 @@ export default function App() {
             <Route path="trips/:id/edit" element={<AdminTripForm mode="edit" />} />
           </Route>
 
-          <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
     </SmoothScroll>

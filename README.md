@@ -264,7 +264,8 @@ client (Vercel), then come back and set the API's `CLIENT_ORIGIN` to the real Ve
 
 - [ ] New **Web Service** from the repo. **Root Directory:** `server`
       (or import `server/render.yaml` as a Blueprint).
-- [ ] Build command: `npm install && npm run build` — Start command: `npm start`
+- [ ] Build command: `npm install --include=dev && npm run build` — Start command: `npm start`
+      (`--include=dev` matters: with `NODE_ENV=production` a plain `npm install` skips TypeScript and the build fails)
 - [ ] Health check path: `/api/health`
 - [ ] Environment variables:
   - [ ] `NODE_ENV=production`

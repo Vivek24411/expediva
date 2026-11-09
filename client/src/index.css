@@ -5,11 +5,31 @@
 @layer base {
   :root {
     --ease-editorial: cubic-bezier(0.65, 0, 0.35, 1);
+
+    /* Light theme (admin panel). RGB channels so Tailwind's /alpha modifiers work. */
+    --c-ivory: 246 242 234;
+    --c-sand: 237 230 218;
+    --c-ink: 27 42 34;
+    --c-ink-soft: 65 84 74;
+    --c-ink-muted: 98 112 102;
+    --c-hairline: rgba(27, 42, 34, 0.14);
+  }
+
+  /* Dark theme — the whole public site. Set on <html> by PublicLayout. */
+  html.theme-dark {
+    --c-ivory: 22 20 17;
+    --c-sand: 48 44 38;
+    --c-ink: 248 245 238;
+    --c-ink-soft: 226 221 211;
+    --c-ink-muted: 196 190 179;
+    --c-hairline: rgba(248, 245, 238, 0.22);
+    color-scheme: dark;
   }
 
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: auto; /* Lenis owns scrolling */
+    position: relative; /* framer-motion useScroll measures against a non-static container */
   }
 
   body {
@@ -137,13 +157,41 @@
 }
 
 /* --------------------------------------------------------------------------
-    Global transparency overrides so background image shows everywhere
+    Transparency so the shared background photo shows through
     -------------------------------------------------------------------------- */
-main, section, div[class*="bg-ivory"], div[class*="bg-white"], div[class*="bg-sand"] {
+
+/* Public site: every page section sits directly on the one fixed background, so the
+   site reads as one continuous page. Menus, sticky bars and cards (divs) keep their
+   own dark backgrounds. */
+html.theme-dark main,
+html.theme-dark section {
   background-color: transparent !important;
 }
 
-header.bg-ivory\/95 {
+/* Cards and notices that use the light "paper" colour become dark glass. */
+html.theme-dark .bg-paper:not(section) {
+  background-color: rgba(18, 16, 13, 0.55);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* "ink" is light on the dark site, so ink-coloured buttons need dark text. */
+html.theme-dark .bg-ink,
+html.theme-dark .hover\:bg-ink:hover,
+html.theme-dark .focus\:bg-ink:focus {
+  color: #14120f;
+}
+
+/* Admin panel (light theme) keeps its original see-through look. */
+html:not(.theme-dark) main:not([class*="bg-pitch"]),
+html:not(.theme-dark) section:not([class*="bg-pitch"]),
+html:not(.theme-dark) div[class*="bg-ivory"],
+html:not(.theme-dark) div[class*="bg-white"],
+html:not(.theme-dark) div[class*="bg-sand"] {
+  background-color: transparent !important;
+}
+
+html:not(.theme-dark) header.bg-ivory\/95 {
   background-color: rgba(249, 248, 244, 0.85) !important;
   backdrop-filter: blur(8px);
 }

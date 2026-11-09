@@ -6,12 +6,7 @@ export default function Merch() {
     <>
       <Seo title="Expediva Merch" noIndex />
 
-      <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-pitch px-6 pb-10 pt-[100px] text-white">
-        <div
-          className="absolute inset-0 scale-105 bg-cover bg-center blur-[2px] brightness-50"
-          style={{ backgroundImage: "url('/cover-bg.png')" }}
-        />
-        <div className="absolute inset-0 bg-black/50" />
+      <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 pb-10 pt-[100px] text-white">
 
         <section className="relative z-10 mx-auto w-full max-w-5xl text-center">
           <motion.h1

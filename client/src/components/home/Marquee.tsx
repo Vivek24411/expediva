@@ -13,7 +13,7 @@ export function Marquee({ images }: { images: string[] }) {
   const base = images.length >= 6 ? images : [...images, ...images, ...images].slice(0, 8);
 
   return (
-    <section className="overflow-hidden bg-pitch py-20 lg:py-28">
+    <section className="overflow-hidden py-20 lg:py-28">
       <div className="shell edge mb-12 flex items-end justify-between gap-6">
         <div>
           <p className="eyebrow text-paper/55">Where we&apos;ve been</p>
@@ -71,7 +71,7 @@ export function Marquee({ images }: { images: string[] }) {
 /** Non-animated variant used while the past-trip photos are still loading. */
 export function MarqueeSkeleton() {
   return (
-    <section className="overflow-hidden bg-pitch py-20 lg:py-28">
+    <section className="overflow-hidden py-20 lg:py-28">
       <div className="shell edge mb-12">
         <div className="h-2.5 w-32 animate-pulse bg-paper/10" />
         <div className="mt-5 h-10 w-2/3 max-w-lg animate-pulse bg-paper/10" />

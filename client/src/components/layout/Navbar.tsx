@@ -4,23 +4,29 @@ import { useEffect, useState, type MouseEvent } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { navLinks, site } from '@/config/site';
 import { cx } from '@/components/ui/primitives';
+import { useLenis } from '@/components/motion/SmoothScroll';
+import { homeSectionId, scrollToSection } from '@/lib/scrollToSection';
 
 const TRANSPARENT_ON = new Set(['/', '/gallery']);
 
 const moreLinks = [
   { label: 'Gallery', to: '/gallery' },
   { label: 'Merch', to: '/merch' },
-  { label: 'Customer Reviews', to: '/reviews' },
 ] as const;
 
 export function Navbar() {
   const { pathname, hash } = useLocation();
   const navigate = useNavigate();
+  const lenis = useLenis();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   const overHero = TRANSPARENT_ON.has(pathname) || pathname.startsWith('/trips/');
-  const solid = scrolled || !overHero || menuOpen;
+  // The homepage sits on one dark photo throughout, so its bar turns to dark glass when
+  // scrolled instead of switching to the light bar the other pages use.
+  const onHome = pathname === '/';
+  const solid = (!onHome && (scrolled || !overHero)) || menuOpen;
+  const darkGlass = onHome && scrolled && !menuOpen;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -38,44 +44,60 @@ export function Navbar() {
     };
   }, [menuOpen]);
 
-  const scrollToAbout = () => {
-    const about = document.getElementById('about');
-    const scrollBox = about?.parentElement;
-
-    if (!about || !scrollBox) return;
-
-    const top =
-      scrollBox.scrollTop +
-      about.getBoundingClientRect().top -
-      scrollBox.getBoundingClientRect().top;
-
-    scrollBox.scrollTo({ top, behavior: 'smooth' });
-  };
-
-  // If About Us is clicked from another page, go home first, then scroll to the section.
+  // Arriving on "/#about", "/#customize", "/#reviews" from another page: wait for the
+  // homepage to render (and the route-change scroll reset to finish), then scroll.
   useEffect(() => {
-    if (pathname !== '/' || hash !== '#about') return;
-
-    const timer = window.setTimeout(scrollToAbout, 100);
-    return () => window.clearTimeout(timer);
+    if (pathname !== '/' || !hash) return;
+    const id = hash.slice(1);
+    let tries = 0;
+    let settle: number | undefined;
+    const timer = window.setInterval(() => {
+      if (scrollToSection(id, lenis)) {
+        window.clearInterval(timer);
+        // Trips load in above lower sections (e.g. reviews) and push them down — re-aim once.
+        settle = window.setTimeout(() => scrollToSection(id, lenis), 900);
+      } else if (++tries > 20) {
+        window.clearInterval(timer);
+      }
+    }, 150);
+    return () => {
+      window.clearInterval(timer);
+      window.clearTimeout(settle);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, hash]);
 
-  const handleAboutClick = (event: MouseEvent<HTMLAnchorElement>) => {
+  /** Click handler for links that point at a homepage section (e.g. "/#about"). */
+  const handleSectionClick = (event: MouseEvent<HTMLAnchorElement>, to: string) => {
+    const id = homeSectionId(to);
+    if (!id) return;
+
     event.preventDefault();
     setMenuOpen(false);
+    const details = event.currentTarget.closest('details');
+    if (details) details.open = false;
 
     if (pathname !== '/') {
-      navigate('/#about');
+      navigate(to);
       return;
     }
 
-    window.history.replaceState(null, '', '/#about');
-    scrollToAbout();
+    window.history.replaceState(null, '', to);
+    scrollToSection(id, lenis);
   };
 
-  const closeMoreMenu = (event: MouseEvent<HTMLAnchorElement>) => {
+  const closeMoreMenu = (event: MouseEvent<HTMLAnchorElement>, to: string) => {
     const details = event.currentTarget.closest('details');
     if (details) details.open = false;
+    handleSectionClick(event, to);
+  };
+
+  /** NavLink ignores the hash, so "/", "/#about" and "/#customize" would all light up on home. */
+  const isLinkActive = (to: string) => {
+    const id = homeSectionId(to);
+    if (id) return pathname === '/' && hash === `#${id}`;
+    if (to === '/') return pathname === '/' && !hash;
+    return pathname === to || pathname.startsWith(`${to}/`);
   };
 
   return (
@@ -83,7 +105,11 @@ export function Navbar() {
       <header
         className={cx(
           'fixed inset-x-0 top-0 z-50 transition-colors duration-500 ease-editorial',
-          solid ? 'border-b border-hairline bg-ivory/95 backdrop-blur-sm' : 'bg-transparent',
+          solid
+            ? 'border-b border-hairline bg-ivory/95 backdrop-blur-sm'
+            : darkGlass
+              ? 'border-b border-white/10 bg-black/45 backdrop-blur-md'
+              : 'bg-transparent',
         )}
       >
         <nav
@@ -93,8 +119,9 @@ export function Navbar() {
           <Link to="/" className="flex items-center">
             <img
               src="/logo.png"
-              alt="Expediva Logo"
-              className="h-24 w-auto object-contain"
+              alt="Expediva"
+              // Fits inside the 68px bar (it used to hang over the page below it).
+              className="h-[58px] w-auto object-contain"
             />
           </Link>
 
@@ -105,14 +132,12 @@ export function Navbar() {
                 <NavLink
                   key={link.to}
                   to={link.to}
-                  onClick={link.label === 'About Us' ? handleAboutClick : undefined}
-                  className={({ isActive }) =>
-                    cx(
-                      'link-underline text-sm tracking-wide transition-colors duration-500',
-                      solid ? 'text-ink-soft hover:text-ink' : 'text-paper/85 hover:text-paper',
-                      isActive && (solid ? 'text-ink' : 'text-paper'),
-                    )
-                  }
+                  onClick={(event) => handleSectionClick(event, link.to)}
+                  className={cx(
+                    'link-underline text-sm tracking-wide transition-colors duration-500',
+                    solid ? 'text-ink-soft hover:text-ink' : 'text-paper/85 hover:text-paper',
+                    isLinkActive(link.to) && (solid ? 'text-ink' : 'text-paper'),
+                  )}
                 >
                   {link.label}
                 </NavLink>
@@ -137,7 +162,7 @@ export function Navbar() {
                   <Link
                     key={link.to}
                     to={link.to}
-                    onClick={closeMoreMenu}
+                    onClick={(event) => closeMoreMenu(event, link.to)}
                     className="block px-5 py-3 text-sm text-ink-soft transition-colors hover:bg-sand hover:text-ink"
                   >
                     {link.label}
@@ -189,7 +214,7 @@ export function Navbar() {
                     >
                       <Link
                         to={link.to}
-                        onClick={link.label === 'About Us' ? handleAboutClick : undefined}
+                        onClick={(event) => handleSectionClick(event, link.to)}
                         className="block py-5 font-display text-4xl tracking-tight text-ink"
                       >
                         {link.label}
@@ -208,7 +233,10 @@ export function Navbar() {
                         <Link
                           key={link.to}
                           to={link.to}
-                          onClick={() => setMenuOpen(false)}
+                          onClick={(event) => {
+                            setMenuOpen(false);
+                            handleSectionClick(event, link.to);
+                          }}
                           className="block py-3 text-lg text-ink-soft"
                         >
                           {link.label}

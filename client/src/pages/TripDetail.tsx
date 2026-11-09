@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { ArrowUpRight, Check, MapPin, Minus, Users } from 'lucide-react';
-import { useRef } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CATEGORY_LABELS, DIFFICULTY_LABELS } from '@shared/types';
 import { Seo } from '@/components/layout/Seo';
@@ -26,17 +26,12 @@ import { sizes } from '@/lib/image';
 
 export default function TripDetail() {
   const { slug = '' } = useParams();
-  const heroRef = useRef<HTMLElement>(null);
-  const reduced = useReducedMotion();
 
   const { data: trip, isPending, isError, error } = useQuery({
     queryKey: queryKeys.trip(slug),
     queryFn: () => api.getTrip(slug),
     enabled: Boolean(slug),
   });
-
-  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] });
-  const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '14%']);
 
   if (isPending) return <TripDetailSkeleton />;
 
@@ -61,7 +56,7 @@ export default function TripDetail() {
   const urgency = urgencyFor(trip);
   const galleryImages = [trip.heroImage, ...trip.gallery];
 
-  const enrollLabel = open ? 'Enroll Now' : 'Enrollment Closed';
+  const enrollLabel = open ? 'Register Now' : 'Registration Closed';
 
   return (
     <>
@@ -101,8 +96,8 @@ export default function TripDetail() {
       />
 
       {/* ------------------------------------------------------------- hero */}
-      <section ref={heroRef} className="relative h-[78svh] min-h-[500px] overflow-hidden">
-        <motion.div className="absolute inset-0 -bottom-[14%]" style={reduced ? undefined : { y: heroY }}>
+      <ParallaxHero
+        background={
           <Img
             src={trip.heroImage}
             alt={trip.title}
@@ -111,7 +106,8 @@ export default function TripDetail() {
             baseWidth={1024}
             className="h-full w-full object-cover"
           />
-        </motion.div>
+        }
+      >
 
         <div className="absolute inset-0 bg-gradient-to-b from-pitch/50 via-pitch/20 to-pitch/85" />
         <div className="grain absolute inset-0" />
@@ -150,7 +146,7 @@ export default function TripDetail() {
             </div>
           </div>
         </div>
-      </section>
+      </ParallaxHero>
 
       {/* ------------------------------------------------ price + enrollment */}
       <section className="border-b border-hairline bg-ivory">
@@ -235,7 +231,10 @@ export default function TripDetail() {
       {galleryImages.length > 1 ? (
         <section className="bg-paper py-20 lg:py-28">
           <div className="shell edge mb-10">
-            <Eyebrow>The place</Eyebrow>
+            <Eyebrow>Gallery</Eyebrow>
+            <h2 className="mt-4 font-display text-display-sm tracking-tight text-ink">
+              Photos from previous trips.
+            </h2>
           </div>
           <RevealImage>
             <SwipeGallery images={galleryImages} title={trip.title} />
@@ -428,5 +427,26 @@ function TripDetailSkeleton() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * Trip hero with a slow parallax background. Its own component so the ref is attached
+ * on first render — the page itself renders a skeleton first, which left useScroll
+ * watching an empty ref.
+ */
+function ParallaxHero({ background, children }: { background: ReactNode; children: ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '14%']);
+
+  return (
+    <section ref={ref} className="relative h-[78svh] min-h-[500px] overflow-hidden">
+      <motion.div className="absolute inset-0 -bottom-[14%]" style={reduced ? undefined : { y }}>
+        {background}
+      </motion.div>
+      {children}
+    </section>
   );
 }

@@ -1,26 +1,25 @@
 import { useQuery } from '@tanstack/react-query';
-import { ArrowRight, GraduationCap, MapPin, Receipt, ShieldCheck, type LucideIcon } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { PastTripCard, PastTripCardSkeleton, tripPhotos } from '@/components/gallery/PastTripCard';
+import { CustomizeTrip } from '@/components/home/CustomizeTrip';
 import { Hero } from '@/components/home/Hero';
-import { Marquee, MarqueeSkeleton } from '@/components/home/Marquee';
-import { Testimonials } from '@/components/home/Testimonials';
+import { UpcomingTrips } from '@/components/home/UpcomingTrips';
 import { Seo } from '@/components/layout/Seo';
-import { Reveal, RevealChild, RevealGroup } from '@/components/motion/Reveal';
-import { TripCard, TripCardSkeleton } from '@/components/trips/TripCard';
+import { useLenis } from '@/components/motion/SmoothScroll';
+import { Reveal } from '@/components/motion/Reveal';
 import { Accordion } from '@/components/ui/Accordion';
-import { Eyebrow, Notice } from '@/components/ui/primitives';
-import { generalFaqs, site, trustPoints } from '@/config/site';
+import { Eyebrow } from '@/components/ui/primitives';
+import { generalFaqs, site } from '@/config/site';
 import { api, queryKeys } from '@/lib/api';
 import { ordinal } from '@/lib/format';
+import { scrollToSection } from '@/lib/scrollToSection';
 
-/** Explicit map — a namespace import would pull every Lucide icon into the bundle. */
-const TRUST_ICONS: Record<string, LucideIcon> = {
-  GraduationCap,
-  MapPin,
-  ShieldCheck,
-  Receipt,
-};
-
+/**
+ * The homepage is one continuous page over the site-wide fixed background (SiteBackdrop).
+ * Sections are transparent and use the same glass-card style so nothing looks like a
+ * separate page.
+ */
 export default function Home() {
   const upcoming = useQuery({
     queryKey: queryKeys.trips({ status: 'upcoming' }),
@@ -32,8 +31,9 @@ export default function Home() {
     queryFn: () => api.listTrips({ status: 'past' }),
   });
 
-  const featured = upcoming.data?.slice(0, 3) ?? [];
-  const marqueeImages = (past.data ?? []).flatMap((trip) => [trip.heroImage, ...trip.gallery]);
+  const upcomingTrips = upcoming.data ?? [];
+  const pastTrips = (past.data ?? []).filter((trip) => tripPhotos(trip).length > 0).slice(0, 3);
+  const lenis = useLenis();
 
   return (
     <>
@@ -54,156 +54,148 @@ export default function Home() {
 
       <Hero />
 
-      {/* ---------------------------------------------- upcoming departures */}
-      <section className="bg-ivory py-24 lg:py-36">
-        <div className="shell edge">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <Eyebrow>Upcoming departures</Eyebrow>
-              <h2 className="mt-4 max-w-xl font-display text-display-sm tracking-tight text-ink">
-                Three trips leaving campus soon.
-              </h2>
-            </div>
+      <UpcomingTrips
+        trips={upcomingTrips}
+        isPending={upcoming.isPending}
+        isError={upcoming.isError}
+        onRetry={() => upcoming.refetch()}
+      />
 
+      <CustomizeTrip trips={upcomingTrips} isPending={upcoming.isPending} />
+
+      {/* ------------------------------------------ gallery (past trips) */}
+      <section id="gallery" className="scroll-mt-[68px] py-20 text-white lg:py-28">
+        <div className="shell edge">
+          <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+            <h2 className="font-serif text-3xl uppercase tracking-widest underline decoration-white/60 underline-offset-8 md:text-5xl">
+              Past Trips
+            </h2>
             <Link
-              to="/trips"
-              className="group inline-flex items-center gap-2 text-sm text-ink-soft transition-colors hover:text-ink"
+              to="/gallery"
+              className="text-sm tracking-wide text-white/75 underline-offset-4 transition-colors hover:text-white hover:underline"
             >
-              All trips
-              <ArrowRight
-                size={15}
-                strokeWidth={1.5}
-                className="transition-transform duration-500 ease-editorial group-hover:translate-x-1"
-              />
+              Full gallery →
             </Link>
           </div>
 
-          <hr className="hairline mt-10" />
+            {past.isPending ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <PastTripCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : pastTrips.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {pastTrips.map((trip) => (
+                <PastTripCard key={trip._id} trip={trip} />
+              ))}
+            </div>
+          ) : (
+            // Always shown, so the section never disappears from the page.
+            <div className="flex min-h-[240px] flex-col items-center justify-center rounded-[28px] border border-white/15 bg-black/35 p-8 text-center backdrop-blur-md">
+              <p className="text-white/80">
+                {past.isError
+                  ? 'Past trips could not be loaded.'
+                  : 'Photos from our trips will appear here soon.'}
+              </p>
+              {past.isError ? (
+                <button
+                  type="button"
+                  onClick={() => past.refetch()}
+                  className="mt-5 rounded-full bg-white px-6 py-2 text-sm font-semibold text-black hover:bg-amber-400"
+                >
+                  Try again
+                </button>
+              ) : null}
+            </div>
+          )}
+        </div>
+        </section>
 
-          <div className="mt-12">
-            {upcoming.isPending ? (
-              <div className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <TripCardSkeleton key={i} />
-                ))}
-              </div>
-            ) : upcoming.isError ? (
-              <Notice
-                title="We couldn't load the trips"
-                body={upcoming.error.message}
-                action={
-                  <button
-                    type="button"
-                    onClick={() => upcoming.refetch()}
-                    className="bg-ink px-7 py-3.5 text-sm text-paper transition-colors hover:bg-ember"
-                  >
-                    Try again
-                  </button>
-                }
+      {/* ------------------------------------------------------------ merch */}
+      <section id="merch" className="scroll-mt-[68px] py-20 text-white lg:py-28">
+        <div className="shell edge">
+          <div className="grid items-center gap-10 rounded-3xl border border-white/20 bg-black/40 p-7 backdrop-blur-md md:grid-cols-[0.9fr_1.1fr] md:p-12">
+            <div>
+              <h2 className="font-serif text-3xl uppercase tracking-widest underline decoration-white/60 underline-offset-8 md:text-5xl">
+                Expediva Merch
+              </h2>
+              <p className="mt-6 max-w-sm text-sm leading-relaxed text-white/80">
+                Take a piece of the trail home. Tees designed by the team, worn on every summit.
+              </p>
+              <Link
+                to="/merch"
+                className="mt-8 inline-block rounded-full bg-white px-7 py-3 text-sm font-semibold uppercase tracking-wider text-black transition-colors hover:bg-amber-400"
+              >
+                View Merch
+              </Link>
+            </div>
+            <Link to="/merch" aria-label="View Expediva merch" className="block">
+              <img
+                src="/merch.png"
+                alt="Expediva t-shirts"
+                loading="lazy"
+                decoding="async"
+                className="mx-auto max-h-[380px] w-full rounded-2xl object-contain"
               />
-            ) : featured.length === 0 ? (
-              <Notice
-                title="Nothing on the calendar yet"
-                body="The next set of departures is being planned. Follow us on Instagram — that's where they go up first."
-              />
-            ) : (
-              <RevealGroup className="grid gap-x-6 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
-                {featured.map((trip, i) => (
-                  <RevealChild key={trip._id}>
-                    <TripCard trip={trip} index={i} />
-                  </RevealChild>
-                ))}
-                {/* Home cards sit well below the hero fold — no priority needed. */}
-              </RevealGroup>
-            )}
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* --------------------------------------------------- why Expediva */}
-      <section className="bg-paper py-24 lg:py-36">
+      {/* ------------------------------------------------------------ FAQs */}
+      <section className="py-20 lg:py-28">
         <div className="shell edge">
-          <div className="grid gap-14 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="grid gap-10 rounded-3xl border border-white/20 bg-black/40 p-7 backdrop-blur-md md:p-12 lg:grid-cols-[0.7fr_1.3fr]">
             <Reveal>
-              <Eyebrow>Why Expediva</Eyebrow>
-              <h2 className="mt-4 max-w-md font-display text-display-sm tracking-tight text-ink">
-                Built for the way students actually travel.
+              <Eyebrow>Common questions</Eyebrow>
+              <h2 className="mt-4 max-w-xs font-display text-display-sm tracking-tight text-ink">
+                Before you ask.
               </h2>
             </Reveal>
 
-            <RevealGroup className="grid gap-x-10 gap-y-12 sm:grid-cols-2">
-              {trustPoints.map((point, i) => {
-                const Icon = TRUST_ICONS[point.icon] ?? MapPin;
-
-                return (
-                  <RevealChild key={point.title}>
-                    <div className="flex items-baseline gap-3">
-                      <span className="font-display text-xs text-ember">{ordinal(i)}</span>
-                      <Icon size={17} strokeWidth={1.4} className="text-ink-soft" />
-                    </div>
-                    <h3 className="mt-4 font-display text-xl leading-tight tracking-tight text-ink">
-                      {point.title}
-                    </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-ink-soft">{point.body}</p>
-                  </RevealChild>
-                );
-              })}
-            </RevealGroup>
+            <Reveal delay={0.1}>
+              <Accordion
+                items={generalFaqs.map((faq, i) => ({
+                  id: `faq-${i}`,
+                  label: faq.q,
+                  marker: ordinal(i),
+                  content: <p>{faq.a}</p>,
+                }))}
+              />
+            </Reveal>
           </div>
-        </div>
-      </section>
-
-      <Testimonials />
-
-      {/* ------------------------------------------------------- past trips */}
-      {past.isPending ? <MarqueeSkeleton /> : <Marquee images={marqueeImages} />}
-
-      {/* ------------------------------------------------------------ FAQs */}
-      <section className="bg-ivory py-24 lg:py-36">
-        <div className="shell edge grid gap-12 lg:grid-cols-[0.7fr_1.3fr]">
-          <Reveal>
-            <Eyebrow>Common questions</Eyebrow>
-            <h2 className="mt-4 max-w-xs font-display text-display-sm tracking-tight text-ink">
-              Before you ask.
-            </h2>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <Accordion
-              items={generalFaqs.map((faq, i) => ({
-                id: `faq-${i}`,
-                label: faq.q,
-                marker: ordinal(i),
-                content: <p>{faq.a}</p>,
-              }))}
-            />
-          </Reveal>
         </div>
       </section>
 
       {/* -------------------------------------------------------- final CTA */}
-      <section className="relative overflow-hidden bg-pitch py-28 lg:py-40">
+      <section className="relative py-24 lg:py-36">
         <div className="shell edge relative text-center">
           <Reveal>
-            <Eyebrow className="text-paper/55">Seats go fast</Eyebrow>
-            <h2 className="mx-auto mt-6 max-w-3xl font-display text-display-md tracking-tight text-paper">
+            <Eyebrow className="text-white/60">Seats go fast</Eyebrow>
+            <h2 className="mx-auto mt-6 max-w-3xl font-display text-display-md tracking-tight text-white">
               Your next trip is already on the calendar.
             </h2>
-            <p className="mx-auto mt-7 max-w-md text-sm leading-relaxed text-paper/60">
+            <p className="mx-auto mt-7 max-w-md text-sm leading-relaxed text-white/75">
               Pick a departure, open the form, pay inside it. That&apos;s the whole process.
             </p>
 
-            <Link
-              to="/trips"
-              className="group mt-11 inline-flex items-center gap-3 bg-ember px-9 py-4 text-sm font-medium tracking-wide text-paper transition-colors duration-300 hover:bg-ember-bright"
+            <a
+              href="/#trips"
+              onClick={(event) => {
+                event.preventDefault();
+                window.history.replaceState(null, '', '/#trips');
+                scrollToSection('trips', lenis);
+              }}
+              className="group mt-11 inline-flex items-center gap-3 rounded-full bg-amber-400 px-9 py-4 text-sm font-bold uppercase tracking-wider text-black transition-colors duration-300 hover:bg-white"
             >
               Explore Trips
               <ArrowRight
                 size={16}
-                strokeWidth={1.6}
+                strokeWidth={1.8}
                 className="transition-transform duration-500 ease-editorial group-hover:translate-x-1.5"
               />
-            </Link>
+            </a>
           </Reveal>
         </div>
       </section>

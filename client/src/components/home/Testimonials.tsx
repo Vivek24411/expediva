@@ -21,9 +21,10 @@ export function Testimonials() {
   };
 
   return (
-    <section className="bg-ivory py-24 lg:py-36">
+    <section id="reviews" className="scroll-mt-[68px] py-20 text-white lg:py-28">
       <div className="shell edge">
-        <Eyebrow>In their words</Eyebrow>
+        <div className="rounded-3xl border border-white/20 bg-black/40 p-7 backdrop-blur-md md:p-12">
+        <Eyebrow className="text-white/60">In their words</Eyebrow>
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="min-h-[19rem] sm:min-h-[17rem]">
@@ -36,7 +37,7 @@ export function Testimonials() {
                 exit={reduced ? { opacity: 0 } : { opacity: 0, y: -12 }}
                 transition={{ duration: 0.45, ease: [0.65, 0, 0.35, 1] }}
               >
-                <p className="max-w-3xl font-display text-[clamp(1.4rem,3.2vw,2.15rem)] leading-[1.28] tracking-tight text-ink">
+                <p className="max-w-3xl font-display text-[clamp(1.4rem,3.2vw,2.15rem)] leading-[1.28] tracking-tight text-white">
                   &ldquo;{current.quote}&rdquo;
                 </p>
 
@@ -51,10 +52,10 @@ export function Testimonials() {
                     className="h-12 w-12 shrink-0 rounded-full object-cover"
                   />
                   <div>
-                    <cite className="block text-sm font-medium not-italic text-ink">
+                    <cite className="block text-sm font-medium not-italic text-white">
                       {current.name}
                     </cite>
-                    <span className="mt-0.5 block text-xs text-ink-muted">
+                    <span className="mt-0.5 block text-xs text-white/60">
                       {current.college} · {current.trip}
                     </span>
                   </div>
@@ -64,8 +65,8 @@ export function Testimonials() {
           </div>
 
           <div className="flex items-center gap-6 lg:flex-col lg:items-end">
-            <p className="font-display text-sm text-ink-muted">
-              {ordinal(index)} <span className="text-hairline">/</span>{' '}
+            <p className="font-display text-sm text-white/60">
+              {ordinal(index)} <span className="text-white/30">/</span>{' '}
               {ordinal(testimonials.length - 1)}
             </p>
 
@@ -74,7 +75,7 @@ export function Testimonials() {
                 type="button"
                 onClick={() => go(-1)}
                 aria-label="Previous testimonial"
-                className="flex h-11 w-11 items-center justify-center border border-hairline text-ink transition-colors duration-300 hover:bg-ink hover:text-paper"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 text-white transition-colors duration-300 hover:bg-white hover:text-black"
               >
                 <ArrowLeft size={17} strokeWidth={1.5} />
               </button>
@@ -82,12 +83,13 @@ export function Testimonials() {
                 type="button"
                 onClick={() => go(1)}
                 aria-label="Next testimonial"
-                className="flex h-11 w-11 items-center justify-center border border-hairline text-ink transition-colors duration-300 hover:bg-ink hover:text-paper"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 text-white transition-colors duration-300 hover:bg-white hover:text-black"
               >
                 <ArrowRight size={17} strokeWidth={1.5} />
               </button>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </section>
