@@ -1,0 +1,41 @@
+# Render blueprint for the Expediva API.
+# In Render: New + → Blueprint → pick this repo. It reads this file.
+# (Or set the same three commands by hand on an existing Web Service.)
+services:
+  - type: web
+    name: expediva-api
+    runtime: node
+    plan: free
+    # Run everything from the server folder; ../shared is still reachable.
+    rootDir: server
+    # --include=dev forces typescript/tsx to install even though Render sets
+    # NODE_ENV=production (which would otherwise skip devDependencies and make
+    # `tsc` fail with "not found", leaving no dist/ for the start command).
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Secrets: set these in the Render dashboard (sync:false = not in git).
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Non-secret config — the client origin(s) allowed by CORS and the public
+      # site URL used in sitemap.xml. Replace with your real Vercel domain.
+      - key: CLIENT_ORIGIN
+        value: https://expediva.vercel.app
+      - key: PUBLIC_SITE_URL
+        value: https://expediva.vercel.app

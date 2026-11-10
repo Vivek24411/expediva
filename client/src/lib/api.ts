@@ -1,6 +1,12 @@
 import type { Trip, TripInput } from '@shared/types';
 
-const BASE = (import.meta.env.VITE_API_URL ?? 'http://localhost:4000').replace(/\/+$/, '');
+// In production the API is reached through the Vercel rewrite at /api (same
+// origin), so the auth cookie is first-party. Browsers block third-party
+// cookies, which made a direct call to *.onrender.com lose the session.
+const BASE = (import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? '' : 'http://localhost:4000')).replace(
+  /\/+$/,
+  '',
+);
 
 /** Thrown by every failed request so callers get a status alongside the message. */
 export class ApiError extends Error {

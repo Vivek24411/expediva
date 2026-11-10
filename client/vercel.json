@@ -5,12 +5,16 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "https://expediva.onrender.com/api/:path*"
+    },
+    {
       "source": "/robots.txt",
-      "destination": "https://expediva-api.onrender.com/robots.txt"
+      "destination": "https://expediva.onrender.com/robots.txt"
     },
     {
       "source": "/sitemap.xml",
-      "destination": "https://expediva-api.onrender.com/sitemap.xml"
+      "destination": "https://expediva.onrender.com/sitemap.xml"
     },
     {
       "source": "/((?!assets/|favicon\\.svg).*)",
